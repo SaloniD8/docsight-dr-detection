@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>DocSight — Eye Health Information</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --cream: #FAFAF7;
+    --white: #FFFFFF;
+    --ink: #1A1A2E;
+    --ink-soft: #4A4A6A;
+    --ink-light: #8888AA;
+    --teal: #0B6E6E;
+    --teal-light: #E6F4F4;
+    --teal-mid: #C2E0E0;
+    --red: #C0392B;
+    --red-light: #FDECEA;
+    --green: #1A7A4A;
+    --green-light: #E8F5EE;
+    --amber: #B7600A;
+    --amber-light: #FFF3E0;
+    --blue: #1A3A6E;
+    --blue-light: #EBF0FB;
+    --purple: #5B2D8E;
+    --purple-light: #F3EEFB;
+    --border: #E8E8F0;
+    --shadow-sm: 0 1px 3px rgba(26,26,46,0.06);
+    --shadow-md: 0 4px 16px rgba(26,26,46,0.08);
+    --radius: 14px;
+    --radius-sm: 8px;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'DM Sans', sans-serif; background: var(--cream); color: var(--ink); font-size: 15px; line-height: 1.7; }
+
+  /* HEADER */
+  header { background: var(--white); border-bottom: 1px solid var(--border); padding: 0 40px; display: flex; align-items: center; justify-content: space-between; height: 68px; position: sticky; top: 0; z-index: 100; box-shadow: var(--shadow-sm); }
+  .logo { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+  .logo-icon { width: 40px; height: 40px; background: var(--ink); border-radius: 10px; display: flex; align-items: center; justify-content: center; }
+  .logo-icon svg { width: 22px; height: 22px; fill: white; }
+  .logo-text { font-family: 'DM Serif Display', serif; font-size: 22px; color: var(--ink); }
+  .logo-sub { font-size: 12px; color: var(--ink-light); margin-top: -2px; }
+  .nav-links { display: flex; gap: 6px; }
+  .nav-btn { padding: 8px 16px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 600; text-decoration: none; transition: all 0.2s; border: 1.5px solid transparent; }
+  .nav-btn.active { background: var(--ink); color: white; }
+  .nav-btn:not(.active) { color: var(--ink-soft); border-color: var(--border); }
+  .nav-btn:not(.active):hover { border-color: var(--ink); color: var(--ink); }
+
+  /* HERO */
+  .hero { background: var(--ink); color: white; padding: 64px 40px; text-align: center; position: relative; overflow: hidden; }
+  .hero::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 30% 50%, rgba(11,110,110,0.4) 0%, transparent 60%), radial-gradient(ellipse at 70% 50%, rgba(26,58,110,0.3) 0%, transparent 60%); }
+  .hero-content { position: relative; z-index: 1; max-width: 680px; margin: 0 auto; }
+  .hero-eyebrow { font-size: 11px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.5); margin-bottom: 14px; }
+  .hero-title { font-family: 'DM Serif Display', serif; font-size: 44px; line-height: 1.15; margin-bottom: 16px; }
+  .hero-title em { font-style: italic; color: #7FDED9; }
+  .hero-sub { font-size: 16px; color: rgba(255,255,255,0.65); line-height: 1.7; max-width: 520px; margin: 0 auto 32px; }
+  .hero-stats { display: flex; justify-content: center; gap: 40px; }
+  .hero-stat-val { font-family: 'DM Serif Display', serif; font-size: 28px; color: #7FDED9; }
+  .hero-stat-lbl { font-size: 12px; color: rgba(255,255,255,0.5); margin-top: 2px; }
+
+  /* NAV TABS */
+  .tab-bar { background: var(--white); border-bottom: 1px solid var(--border); padding: 0 40px; display: flex; gap: 0; position: sticky; top: 68px; z-index: 99; overflow-x: auto; }
+  .tab-btn { padding: 16px 22px; font-size: 13px; font-weight: 600; color: var(--ink-light); border: none; background: none; cursor: pointer; border-bottom: 2px solid transparent; white-space: nowrap; font-family: 'DM Sans', sans-serif; transition: all 0.2s; }
+  .tab-btn.active { color: var(--teal); border-bottom-color: var(--teal); }
+  .tab-btn:hover { color: var(--ink); }
+
+  /* MAIN */
+  main { max-width: 1060px; margin: 0 auto; padding: 48px 24px 72px; }
+  .section { display: none; }
+  .section.active { display: block; }
+
+  /* SECTION HEADER */
+  .sec-header { margin-bottom: 36px; }
+  .sec-eyebrow { font-size: 11px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: var(--teal); margin-bottom: 8px; }
+  .sec-title { font-family: 'DM Serif Display', serif; font-size: 34px; color: var(--ink); margin-bottom: 10px; }
+  .sec-sub { font-size: 15px; color: var(--ink-soft); max-width: 620px; }
+
+  /* CARDS */
+  .card { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); padding: 28px; box-shadow: var(--shadow-sm); }
+  .card-title { font-size: 11px; font-weight: 600; letter-spacing: 1.2px; text-transform: uppercase; color: var(--ink-light); margin-bottom: 18px; display: flex; align-items: center; gap: 8px; }
+  .card-title::after { content:''; flex:1; height:1px; background:var(--border); }
+
+  /* GRID LAYOUTS */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+  .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+
+  /* ── SECTION 1: DR INFO ── */
+  .dr-hero-card {
+    background: linear-gradient(135deg, #1A1A2E 0%, #0B3D3D 100%);
+    border-radius: var(--radius); padding: 40px; color: white; margin-bottom: 24px;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: center;
+  }
+  .dr-hero-title { font-family: 'DM Serif Display', serif; font-size: 30px; margin-bottom: 12px; line-height: 1.2; }
+  .dr-hero-sub { font-size: 14px; color: rgba(255,255,255,0.65); line-height: 1.7; }
+  .dr-stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .dr-stat { background: rgba(255,255,255,0.08); border-radius: 10px; padding: 16px; text-align: center; }
+  .dr-stat-val { font-family: 'DM Serif Display', serif; font-size: 24px; color: #7FDED9; }
+  .dr-stat-lbl { font-size: 11px; color: rgba(255,255,255,0.55); margin-top: 3px; }
+
+  .stages-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 24px; }
+  .stage-card { border-radius: var(--radius-sm); padding: 18px 14px; text-align: center; border: 1.5px solid; }
+  .stage-card .stage-icon { font-size: 24px; margin-bottom: 8px; }
+  .stage-card .stage-name { font-size: 12px; font-weight: 700; margin-bottom: 4px; }
+  .stage-card .stage-desc { font-size: 11px; line-height: 1.5; }
+  .stage-0 { background: #E8F5EE; border-color: #A9DFBF; color: #1A7A4A; }
+  .stage-1 { background: #EBF5FB; border-color: #AED6F1; color: #1A5276; }
+  .stage-2 { background: #FEF9E7; border-color: #F9E79F; color: #9A7D0A; }
+  .stage-3 { background: #FEF0E7; border-color: #FAD7A0; color: #A04000; }
+  .stage-4 { background: #FDECEA; border-color: #F5B7B1; color: #C0392B; }
+
+  .symptom-list { list-style: none; }
+  .symptom-list li { padding: 10px 0; border-bottom: 1px solid var(--border); display: flex; align-items: flex-start; gap: 12px; font-size: 14px; color: var(--ink-soft); }
+  .symptom-list li:last-child { border-bottom: none; }
+  .symptom-list li::before { content: '●'; color: var(--red); font-size: 8px; margin-top: 7px; flex-shrink: 0; }
+
+  .risk-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  .risk-item { padding: 16px; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--cream); }
+  .risk-icon { font-size: 22px; margin-bottom: 8px; }
+  .risk-title { font-size: 13px; font-weight: 700; margin-bottom: 4px; }
+  .risk-desc { font-size: 12px; color: var(--ink-soft); line-height: 1.5; }
+
+  /* ── SECTION 2: EYE HEALTH ── */
+  .tip-card { border-radius: var(--radius); padding: 24px; border: 1px solid var(--border); background: var(--white); display: flex; gap: 18px; align-items: flex-start; margin-bottom: 14px; transition: box-shadow 0.2s; }
+  .tip-card:hover { box-shadow: var(--shadow-md); }
+  .tip-icon-wrap { width: 52px; height: 52px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px; flex-shrink: 0; }
+  .tip-body h3 { font-size: 15px; font-weight: 700; margin-bottom: 5px; }
+  .tip-body p  { font-size: 13px; color: var(--ink-soft); line-height: 1.6; }
+
+  .schedule-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  .schedule-table th { text-align: left; font-size: 11px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: var(--ink-light); padding: 10px 14px; border-bottom: 2px solid var(--border); }
+  .schedule-table td { padding: 12px 14px; border-bottom: 1px solid var(--border); color: var(--ink-soft); vertical-align: top; }
+  .schedule-table tr:last-child td { border-bottom: none; }
+  .schedule-table tr:hover td { background: var(--cream); }
+  .badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+  .badge-green  { background: var(--green-light);  color: var(--green); }
+  .badge-amber  { background: var(--amber-light);  color: var(--amber); }
+  .badge-red    { background: var(--red-light);    color: var(--red); }
+  .badge-blue   { background: var(--blue-light);   color: var(--blue); }
+
+  .food-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  .food-item { padding: 16px 12px; background: var(--cream); border-radius: var(--radius-sm); border: 1px solid var(--border); text-align: center; }
+  .food-emoji { font-size: 26px; margin-bottom: 6px; }
+  .food-name { font-size: 12px; font-weight: 700; margin-bottom: 3px; }
+  .food-benefit { font-size: 11px; color: var(--ink-light); line-height: 1.4; }
+
+  /* ── SECTION 3: EYE DISEASES ── */
+  .disease-card { border-radius: var(--radius); overflow: hidden; border: 1px solid var(--border); background: var(--white); margin-bottom: 20px; box-shadow: var(--shadow-sm); }
+  .disease-header { padding: 20px 24px; display: flex; align-items: center; gap: 16px; }
+  .disease-icon { width: 50px; height: 50px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px; flex-shrink: 0; }
+  .disease-title { font-family: 'DM Serif Display', serif; font-size: 20px; margin-bottom: 2px; }
+  .disease-tag { font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 20px; }
+  .disease-body { padding: 0 24px 24px; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
+  .disease-col-title { font-size: 11px; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; color: var(--ink-light); margin-bottom: 10px; }
+  .disease-list { list-style: none; }
+  .disease-list li { font-size: 13px; color: var(--ink-soft); padding: 4px 0; display: flex; gap: 8px; }
+  .disease-list li::before { content: '→'; color: var(--ink-light); flex-shrink: 0; }
+
+  /* ── SECTION 4: RESOURCES ── */
+  .resource-card { display: flex; align-items: center; gap: 16px; padding: 18px 20px; background: var(--white); border: 1px solid var(--border); border-radius: var(--radius-sm); text-decoration: none; color: var(--ink); transition: all 0.2s; margin-bottom: 10px; }
+  .resource-card:hover { border-color: var(--teal); box-shadow: var(--shadow-md); transform: translateX(3px); }
+  .resource-icon { font-size: 24px; flex-shrink: 0; }
+  .resource-title { font-size: 14px; font-weight: 700; margin-bottom: 2px; }
+  .resource-sub { font-size: 12px; color: var(--ink-light); }
+  .resource-arrow { margin-left: auto; font-size: 16px; color: var(--ink-light); }
+
+  /* EMERGENCY BOX */
+  .emergency-box { background: var(--red-light); border: 2px solid #F5B7B1; border-radius: var(--radius); padding: 28px; text-align: center; margin-top: 32px; }
+  .emergency-title { font-family: 'DM Serif Display', serif; font-size: 22px; color: var(--red); margin-bottom: 8px; }
+  .emergency-sub { font-size: 14px; color: var(--ink-soft); margin-bottom: 16px; }
+  .emergency-signs { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
+  .emergency-sign { background: white; border: 1px solid #F5B7B1; border-radius: 99px; padding: 6px 16px; font-size: 13px; font-weight: 600; color: var(--red); }
+
+  /* FOOTER */
+  footer { background: var(--ink); color: rgba(255,255,255,0.5); text-align: center; padding: 24px; font-size: 12px; }
+  footer span { color: rgba(255,255,255,0.25); margin: 0 8px; }
+
+  @media (max-width: 768px) {
+    .grid-2, .grid-3, .grid-4, .stages-grid, .risk-grid, .dr-hero-card, .disease-body { grid-template-columns: 1fr; }
+    .hero-stats { gap: 20px; }
+    .hero-title { font-size: 30px; }
+    .tab-bar, header { padding: 0 16px; }
+    main { padding: 28px 16px 48px; }
+    .food-grid { grid-template-columns: repeat(2,1fr); }
+  }
+
+  /* ANIMATIONS */
+  .section.active .card,
+  .section.active .tip-card,
+  .section.active .disease-card,
+  .section.active .stage-card {
+    animation: fadeUp 0.4s ease both;
+  }
+  @keyframes fadeUp { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <a class="logo" href="dr_detection_gui.html">
+    <div class="logo-icon">
+      <svg viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+    </div>
+    <div>
+      <div class="logo-text">DocSight</div>
+      <div class="logo-sub">Eye Health Information</div>
+    </div>
+  </a>
+  <div class="nav-links">
+    <a class="nav-btn" href="dr_detection_gui.html">← Screening Tool</a>
+    <a class="nav-btn active" href="eye_info.html">Information</a>
+  </div>
+</header>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-content">
+    <div class="hero-eyebrow">DocSight · Eye Health Portal</div>
+    <h1 class="hero-title">Your Guide to <em>Eye Health</em> & Disease Awareness</h1>
+    <p class="hero-sub">Comprehensive information on diabetic retinopathy, common eye diseases, and evidence-based tips to protect your vision for life.</p>
+    <div class="hero-stats">
+      <div><div class="hero-stat-val">285M</div><div class="hero-stat-lbl">People with vision impairment</div></div>
+      <div><div class="hero-stat-val">80%</div><div class="hero-stat-lbl">Cases are preventable</div></div>
+      <div><div class="hero-stat-val">422M</div><div class="hero-stat-lbl">Diabetics at risk of DR</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- TAB BAR -->
+<div class="tab-bar">
+  <button class="tab-btn active" onclick="switchTab(0)">🔴 Diabetic Retinopathy</button>
+  <button class="tab-btn" onclick="switchTab(1)">👁 Eye Care Tips</button>
+  <button class="tab-btn" onclick="switchTab(2)">🏥 Common Eye Diseases</button>
+  <button class="tab-btn" onclick="switchTab(3)">🔗 Resources & Links</button>
+</div>
+
+<main>
+
+  <!-- ══════════════════════════════════════════════
+       SECTION 1 — DIABETIC RETINOPATHY
+  ══════════════════════════════════════════════ -->
+  <div class="section active" id="sec-0">
+    <div class="sec-header">
+      <div class="sec-eyebrow">Disease Overview</div>
+      <div class="sec-title">Diabetic Retinopathy</div>
+      <div class="sec-sub">The leading cause of preventable blindness in working-age adults worldwide. Early detection saves sight.</div>
+    </div>
+
+    <div class="dr-hero-card" style="margin-bottom:24px">
+      <div>
+        <div class="dr-hero-title">What is Diabetic Retinopathy?</div>
+        <p class="dr-hero-sub">Diabetic retinopathy (DR) is a diabetes complication that affects the eyes. It is caused by damage to the blood vessels of the light-sensitive tissue at the back of the eye (retina). At first, diabetic retinopathy may cause no symptoms or only mild vision problems. Eventually it can cause blindness. The condition can develop in anyone who has type 1 or type 2 diabetes.</p>
+      </div>
+      <div class="dr-stat-grid">
+        <div class="dr-stat"><div class="dr-stat-val">1 in 3</div><div class="dr-stat-lbl">Diabetics have some form of DR</div></div>
+        <div class="dr-stat"><div class="dr-stat-val">#1</div><div class="dr-stat-lbl">Cause of blindness in working-age adults</div></div>
+        <div class="dr-stat"><div class="dr-stat-val">90%</div><div class="dr-stat-lbl">Of vision loss is preventable with early detection</div></div>
+        <div class="dr-stat"><div class="dr-stat-val">25 yrs</div><div class="dr-stat-lbl">After diabetes onset, nearly all type 1 patients have some DR</div></div>
+      </div>
+    </div>
+
+    <!-- STAGES -->
+    <div class="card" style="margin-bottom:20px">
+      <div class="card-title">5 Stages of Diabetic Retinopathy</div>
+      <div class="stages-grid">
+        <div class="stage-card stage-0"><div class="stage-icon">🟢</div><div class="stage-name">No DR</div><div class="stage-desc">No signs of retinopathy. Annual screening recommended.</div></div>
+        <div class="stage-card stage-1"><div class="stage-icon">🔵</div><div class="stage-name">Mild NPDR</div><div class="stage-desc">Small microaneurysms in the retinal blood vessels.</div></div>
+        <div class="stage-card stage-2"><div class="stage-icon">🟡</div><div class="stage-name">Moderate NPDR</div><div class="stage-desc">Blood vessels that nourish the retina are blocked.</div></div>
+        <div class="stage-card stage-3"><div class="stage-icon">🟠</div><div class="stage-name">Severe NPDR</div><div class="stage-desc">Many blocked blood vessels. Body signals to grow new ones.</div></div>
+        <div class="stage-card stage-4"><div class="stage-icon">🔴</div><div class="stage-name">Proliferative DR</div><div class="stage-desc">New fragile vessels grow and can leak blood. Severe vision loss risk.</div></div>
+      </div>
+      <p style="font-size:12px;color:var(--ink-light)">NPDR = Non-Proliferative Diabetic Retinopathy. This tool screens for presence or absence of DR.</p>
+    </div>
+
+    <div class="grid-2" style="margin-bottom:20px">
+      <!-- SYMPTOMS -->
+      <div class="card">
+        <div class="card-title">Symptoms to Watch For</div>
+        <ul class="symptom-list">
+          <li>Spots or dark strings floating in your vision (floaters)</li>
+          <li>Blurred or fluctuating vision throughout the day</li>
+          <li>Dark or empty areas in your vision</li>
+          <li>Difficulty with colour perception</li>
+          <li>Vision loss — often no early warning signs</li>
+          <li>Sudden vision changes after blood sugar fluctuation</li>
+        </ul>
+        <div style="margin-top:14px;padding:12px 14px;background:var(--amber-light);border-radius:var(--radius-sm);font-size:12px;color:var(--amber)">
+          ⚠️ <strong>Important:</strong> Early DR often has NO symptoms. Regular screening is essential even if your vision seems fine.
+        </div>
+      </div>
+
+      <!-- RISK FACTORS -->
+      <div class="card">
+        <div class="card-title">Risk Factors</div>
+        <div class="risk-grid">
+          <div class="risk-item"><div class="risk-icon">🩸</div><div class="risk-title">Poor Blood Sugar Control</div><div class="risk-desc">High HbA1c levels accelerate damage</div></div>
+          <div class="risk-item"><div class="risk-icon">📅</div><div class="risk-title">Duration of Diabetes</div><div class="risk-desc">Longer duration = higher risk</div></div>
+          <div class="risk-item"><div class="risk-icon">💉</div><div class="risk-title">High Blood Pressure</div><div class="risk-desc">Damages blood vessels further</div></div>
+          <div class="risk-item"><div class="risk-icon">🧪</div><div class="risk-title">High Cholesterol</div><div class="risk-desc">Increases vessel blockage risk</div></div>
+          <div class="risk-item"><div class="risk-icon">🚬</div><div class="risk-title">Smoking</div><div class="risk-desc">Narrows blood vessels, worsens DR</div></div>
+          <div class="risk-item"><div class="risk-icon">🧬</div><div class="risk-title">Genetics</div><div class="risk-desc">Family history increases susceptibility</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TREATMENT -->
+    <div class="card">
+      <div class="card-title">Treatment Options</div>
+      <div class="grid-3">
+        <div style="padding:16px;background:var(--green-light);border-radius:var(--radius-sm);border:1px solid #A9DFBF">
+          <div style="font-size:22px;margin-bottom:8px">💊</div>
+          <div style="font-weight:700;font-size:14px;margin-bottom:6px;color:var(--green)">Early Stage</div>
+          <p style="font-size:13px;color:var(--ink-soft)">Blood sugar, blood pressure and cholesterol management. Regular monitoring every 6–12 months.</p>
+        </div>
+        <div style="padding:16px;background:var(--amber-light);border-radius:var(--radius-sm);border:1px solid #FAD7A0">
+          <div style="font-size:22px;margin-bottom:8px">💉</div>
+          <div style="font-weight:700;font-size:14px;margin-bottom:6px;color:var(--amber)">Moderate Stage</div>
+          <p style="font-size:13px;color:var(--ink-soft)">Anti-VEGF injections (Ranibizumab, Bevacizumab) to prevent abnormal vessel growth. Laser photocoagulation.</p>
+        </div>
+        <div style="padding:16px;background:var(--red-light);border-radius:var(--radius-sm);border:1px solid #F5B7B1">
+          <div style="font-size:22px;margin-bottom:8px">🔬</div>
+          <div style="font-weight:700;font-size:14px;margin-bottom:6px;color:var(--red)">Advanced Stage</div>
+          <p style="font-size:13px;color:var(--ink-soft)">Vitrectomy surgery to remove blood from eye. Scatter laser treatment for proliferative DR.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════
+       SECTION 2 — EYE CARE TIPS
+  ══════════════════════════════════════════════ -->
+  <div class="section" id="sec-1">
+    <div class="sec-header">
+      <div class="sec-eyebrow">Preventive Care</div>
+      <div class="sec-title">How to Take Care of Your Eyes</div>
+      <div class="sec-sub">Evidence-based habits that protect your vision and reduce risk of eye disease throughout your life.</div>
+    </div>
+
+    <div class="tip-card">
+      <div class="tip-icon-wrap" style="background:var(--teal-light)">🩺</div>
+      <div class="tip-body">
+        <h3>Get Regular Eye Exams</h3>
+        <p>Adults should have a comprehensive eye exam every 1–2 years even without symptoms. People with diabetes need annual dilated eye exams. Many serious eye diseases have no early symptoms — only an exam can detect them.</p>
+      </div>
+    </div>
+    <div class="tip-card">
+      <div class="tip-icon-wrap" style="background:#FEF9E7">🩸</div>
+      <div class="tip-body">
+        <h3>Control Blood Sugar (for Diabetics)</h3>
+        <p>Keeping HbA1c below 7% reduces the risk of developing diabetic retinopathy by up to 76%. Monitor your blood glucose daily and follow your doctor's medication plan. This is the single most important thing you can do if you have diabetes.</p>
+      </div>
+    </div>
+    <div class="tip-card">
+      <div class="tip-icon-wrap" style="background:var(--blue-light)">💻</div>
+      <div class="tip-body">
+        <h3>Follow the 20-20-20 Rule for Screen Time</h3>
+        <p>Every <strong>20 minutes</strong>, look at something <strong>20 feet away</strong> for <strong>20 seconds</strong>. This reduces digital eye strain. Keep screens at arm's length, reduce glare, and increase text size to avoid straining.</p>
+      </div>
+    </div>
+    <div class="tip-card">
+      <div class="tip-icon-wrap" style="background:#FEF0E7">☀️</div>
+      <div class="tip-body">
+        <h3>Wear UV-Protective Sunglasses</h3>
+        <p>UV radiation from the sun increases risk of cataracts and macular degeneration. Wear sunglasses that block 99–100% of UVA and UVB rays whenever outdoors, even on cloudy days. A wide-brimmed hat provides additional protection.</p>
+      </div>
+    </div>
+    <div class="tip-card">
+      <div class="tip-icon-wrap" style="background:var(--red-light)">🚬</div>
+      <div class="tip-body">
+        <h3>Quit Smoking</h3>
+        <p>Smoking doubles the risk of macular degeneration and significantly increases cataract risk. It also worsens diabetic retinopathy by narrowing blood vessels. Quitting at any age reduces eye disease risk substantially.</p>
+      </div>
+    </div>
+    <div class="tip-card">
+      <div class="tip-icon-wrap" style="background:var(--green-light)">😴</div>
+      <div class="tip-body">
+        <h3>Get Adequate Sleep</h3>
+        <p>Eyes repair themselves during sleep. Insufficient sleep causes dry eyes, eye spasms, and blurred vision. Aim for 7–9 hours. If you have persistent dry eyes or tearing, see an ophthalmologist — it may indicate a tear duct issue.</p>
+      </div>
+    </div>
+    <div class="tip-card">
+      <div class="tip-icon-wrap" style="background:var(--purple-light)">🥽</div>
+      <div class="tip-body">
+        <h3>Use Protective Eyewear</h3>
+        <p>Wear safety glasses or goggles when working with tools, chemicals, or playing contact sports. Eye injuries are a leading cause of preventable vision loss. Sports goggles are recommended for racquet sports, basketball, and swimming.</p>
+      </div>
+    </div>
+
+    <!-- SCREENING SCHEDULE -->
+    <div class="card" style="margin-top:28px;margin-bottom:24px">
+      <div class="card-title">Recommended Eye Screening Schedule</div>
+      <table class="schedule-table">
+        <thead>
+          <tr><th>Age / Condition</th><th>Frequency</th><th>What's Checked</th><th>Priority</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Children (0–5 yrs)</td><td>At birth, 6 months, 3 yrs, before school</td><td>Alignment, vision development, lazy eye</td><td><span class="badge badge-amber">Important</span></td></tr>
+          <tr><td>Adults 18–40 (no risk factors)</td><td>Every 2 years</td><td>Refraction, pressure, overall health</td><td><span class="badge badge-green">Routine</span></td></tr>
+          <tr><td>Adults 40–60</td><td>Every 1–2 years</td><td>Glaucoma, early macular changes, cataracts</td><td><span class="badge badge-amber">Important</span></td></tr>
+          <tr><td>Adults 60+</td><td>Every year</td><td>Full dilated exam, all age-related conditions</td><td><span class="badge badge-red">High Priority</span></td></tr>
+          <tr><td>Type 1 Diabetics</td><td>Within 5 yrs of diagnosis, then annually</td><td>Dilated fundus exam, DR screening</td><td><span class="badge badge-red">High Priority</span></td></tr>
+          <tr><td>Type 2 Diabetics</td><td>At diagnosis, then annually</td><td>Dilated fundus exam, DR screening, macular oedema</td><td><span class="badge badge-red">High Priority</span></td></tr>
+          <tr><td>Hypertension patients</td><td>Annually</td><td>Hypertensive retinopathy screening</td><td><span class="badge badge-amber">Important</span></td></tr>
+          <tr><td>Family history of glaucoma</td><td>Every year from age 40</td><td>IOP measurement, optic nerve, visual field</td><td><span class="badge badge-red">High Priority</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- EYE-HEALTHY FOODS -->
+    <div class="card">
+      <div class="card-title">Eye-Healthy Foods</div>
+      <div class="food-grid">
+        <div class="food-item"><div class="food-emoji">🥕</div><div class="food-name">Carrots</div><div class="food-benefit">Beta-carotene → Vitamin A for night vision</div></div>
+        <div class="food-item"><div class="food-emoji">🐟</div><div class="food-name">Fatty Fish</div><div class="food-benefit">Omega-3 fatty acids reduce dry eye & macular risk</div></div>
+        <div class="food-item"><div class="food-emoji">🥬</div><div class="food-name">Leafy Greens</div><div class="food-benefit">Lutein & zeaxanthin protect against macular degeneration</div></div>
+        <div class="food-item"><div class="food-emoji">🥚</div><div class="food-name">Eggs</div><div class="food-benefit">Lutein, zeaxanthin & zinc for retinal health</div></div>
+        <div class="food-item"><div class="food-emoji">🫐</div><div class="food-name">Blueberries</div><div class="food-benefit">Antioxidants protect against oxidative stress</div></div>
+        <div class="food-item"><div class="food-emoji">🟠</div><div class="food-name">Oranges</div><div class="food-benefit">Vitamin C reduces cataract risk significantly</div></div>
+        <div class="food-item"><div class="food-emoji">🌰</div><div class="food-name">Nuts & Seeds</div><div class="food-benefit">Vitamin E slows age-related macular degeneration</div></div>
+        <div class="food-item"><div class="food-emoji">🫘</div><div class="food-name">Legumes</div><div class="food-benefit">Zinc helps Vitamin A produce protective pigment</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════
+       SECTION 3 — COMMON EYE DISEASES
+  ══════════════════════════════════════════════ -->
+  <div class="section" id="sec-2">
+    <div class="sec-header">
+      <div class="sec-eyebrow">Disease Library</div>
+      <div class="sec-title">Common Eye Diseases</div>
+      <div class="sec-sub">Understanding the most prevalent eye conditions — their causes, symptoms, and treatment options.</div>
+    </div>
+
+    <!-- GLAUCOMA -->
+    <div class="disease-card">
+      <div class="disease-header" style="background:var(--blue-light);border-bottom:1px solid var(--border)">
+        <div class="disease-icon" style="background:var(--blue);color:white">👁</div>
+        <div>
+          <div class="disease-title">Glaucoma</div>
+          <div style="display:flex;gap:8px;margin-top:4px;align-items:center">
+            <span class="disease-tag badge badge-red">Silent Blinding Disease</span>
+            <span style="font-size:12px;color:var(--ink-soft)">Affects 80 million people worldwide</span>
+          </div>
+        </div>
+      </div>
+      <div class="disease-body">
+        <div><div class="disease-col-title">What it is</div><p style="font-size:13px;color:var(--ink-soft);line-height:1.7">A group of eye diseases that damage the optic nerve, usually caused by abnormally high pressure in the eye (intraocular pressure). Often called the "silent thief of sight" because it has no symptoms until significant vision is lost. Once lost, vision cannot be restored.</p></div>
+        <div>
+          <div class="disease-col-title">Symptoms</div>
+          <ul class="disease-list">
+            <li>Gradual loss of peripheral (side) vision</li>
+            <li>Tunnel vision in advanced stages</li>
+            <li>Severe eye pain (acute angle-closure)</li>
+            <li>Headache, nausea with eye pain</li>
+            <li>Halos around lights</li>
+            <li>Often NO symptoms until late</li>
+          </ul>
+        </div>
+        <div>
+          <div class="disease-col-title">Treatment</div>
+          <ul class="disease-list">
+            <li>Eye drops to lower eye pressure</li>
+            <li>Oral medications (Acetazolamide)</li>
+            <li>Laser therapy (trabeculoplasty)</li>
+            <li>Surgical drainage procedures</li>
+            <li>Regular IOP monitoring</li>
+            <li>Lifelong management required</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- CATARACTS -->
+    <div class="disease-card">
+      <div class="disease-header" style="background:var(--amber-light);border-bottom:1px solid var(--border)">
+        <div class="disease-icon" style="background:var(--amber);color:white">🌫️</div>
+        <div>
+          <div class="disease-title">Cataracts</div>
+          <div style="display:flex;gap:8px;margin-top:4px;align-items:center">
+            <span class="disease-tag badge badge-amber">Most Common Cause of Blindness</span>
+            <span style="font-size:12px;color:var(--ink-soft)">Affects 95 million people globally</span>
+          </div>
+        </div>
+      </div>
+      <div class="disease-body">
+        <div><div class="disease-col-title">What it is</div><p style="font-size:13px;color:var(--ink-soft);line-height:1.7">A clouding of the normally clear lens of the eye. The lens sits behind the iris and pupil and works much like a camera lens. As cataract progresses, the clouding becomes denser and interferes more with vision. Most are age-related but can occur at any age.</p></div>
+        <div>
+          <div class="disease-col-title">Symptoms</div>
+          <ul class="disease-list">
+            <li>Clouded, blurred or dim vision</li>
+            <li>Increased difficulty seeing at night</li>
+            <li>Sensitivity to light and glare</li>
+            <li>Seeing halos around lights</li>
+            <li>Frequent changes in glass prescription</li>
+            <li>Fading or yellowing of colours</li>
+          </ul>
+        </div>
+        <div>
+          <div class="disease-col-title">Treatment</div>
+          <ul class="disease-list">
+            <li>Early: stronger glasses, magnification</li>
+            <li>Phacoemulsification surgery (gold standard)</li>
+            <li>Artificial intraocular lens implant</li>
+            <li>Usually outpatient — 15 min procedure</li>
+            <li>Success rate over 95%</li>
+            <li>Fully reversible with surgery</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- AMD -->
+    <div class="disease-card">
+      <div class="disease-header" style="background:var(--purple-light);border-bottom:1px solid var(--border)">
+        <div class="disease-icon" style="background:var(--purple);color:white">🔍</div>
+        <div>
+          <div class="disease-title">Age-Related Macular Degeneration (AMD)</div>
+          <div style="display:flex;gap:8px;margin-top:4px;align-items:center">
+            <span class="disease-tag badge badge-blue">Leading Cause in 50+</span>
+            <span style="font-size:12px;color:var(--ink-soft)">196 million affected worldwide by 2020</span>
+          </div>
+        </div>
+      </div>
+      <div class="disease-body">
+        <div><div class="disease-col-title">What it is</div><p style="font-size:13px;color:var(--ink-soft);line-height:1.7">A condition that affects the macula — the central part of the retina responsible for sharp, straight-ahead vision. AMD doesn't cause total blindness but can make it very hard to read, drive, or recognise faces. There are two forms: dry (more common) and wet (more severe).</p></div>
+        <div>
+          <div class="disease-col-title">Symptoms</div>
+          <ul class="disease-list">
+            <li>Blurred or reduced central vision</li>
+            <li>Need for brighter light when reading</li>
+            <li>Difficulty adapting to low light</li>
+            <li>Straight lines appear wavy (wet AMD)</li>
+            <li>Blank spot in central vision</li>
+            <li>Colours appear less vivid</li>
+          </ul>
+        </div>
+        <div>
+          <div class="disease-col-title">Treatment</div>
+          <ul class="disease-list">
+            <li>Dry AMD: AREDS2 vitamin supplements</li>
+            <li>Wet AMD: Anti-VEGF injections</li>
+            <li>Photodynamic therapy</li>
+            <li>Low vision aids and rehabilitation</li>
+            <li>Lifestyle: quit smoking, eat greens</li>
+            <li>No cure — management focused</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- DRY EYE -->
+    <div class="disease-card">
+      <div class="disease-header" style="background:var(--teal-light);border-bottom:1px solid var(--border)">
+        <div class="disease-icon" style="background:var(--teal);color:white">💧</div>
+        <div>
+          <div class="disease-title">Dry Eye Syndrome</div>
+          <div style="display:flex;gap:8px;margin-top:4px;align-items:center">
+            <span class="disease-tag badge badge-green">Very Common</span>
+            <span style="font-size:12px;color:var(--ink-soft)">Affects 1 in 5 adults; rising with screen use</span>
+          </div>
+        </div>
+      </div>
+      <div class="disease-body">
+        <div><div class="disease-col-title">What it is</div><p style="font-size:13px;color:var(--ink-soft);line-height:1.7">Dry eye occurs when the tear glands don't make enough tears or the tears evaporate too quickly. This leads to inflammation and damage of the eye surface. It is increasingly common due to prolonged screen use, air conditioning, and contact lens wear.</p></div>
+        <div>
+          <div class="disease-col-title">Symptoms</div>
+          <ul class="disease-list">
+            <li>Stinging, burning or scratchy sensation</li>
+            <li>Stringy mucus in or around eyes</li>
+            <li>Sensitivity to light</li>
+            <li>Watery eyes (reflex tearing)</li>
+            <li>Blurred vision, eye fatigue</li>
+            <li>Difficulty wearing contact lenses</li>
+          </ul>
+        </div>
+        <div>
+          <div class="disease-col-title">Treatment</div>
+          <ul class="disease-list">
+            <li>Artificial tear eye drops</li>
+            <li>Prescription drops (Cyclosporine)</li>
+            <li>Warm compresses on eyelids</li>
+            <li>Omega-3 fatty acid supplements</li>
+            <li>Punctal plugs for severe cases</li>
+            <li>Reduce screen time, use humidifier</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- EMERGENCY -->
+    <div class="emergency-box">
+      <div class="emergency-title">⚠️ Seek Emergency Eye Care Immediately If You Experience:</div>
+      <div class="emergency-sub">These symptoms may indicate a sight-threatening emergency. Do not wait for a scheduled appointment.</div>
+      <div class="emergency-signs">
+        <span class="emergency-sign">Sudden vision loss</span>
+        <span class="emergency-sign">Flashes of light</span>
+        <span class="emergency-sign">Shower of floaters</span>
+        <span class="emergency-sign">Eye injury or trauma</span>
+        <span class="emergency-sign">Severe eye pain</span>
+        <span class="emergency-sign">Curtain over vision</span>
+        <span class="emergency-sign">Chemical in eye</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════
+       SECTION 4 — RESOURCES
+  ══════════════════════════════════════════════ -->
+  <div class="section" id="sec-3">
+    <div class="sec-header">
+      <div class="sec-eyebrow">Further Reading</div>
+      <div class="sec-title">Trusted Resources & Links</div>
+      <div class="sec-sub">Curated links to authoritative medical sources for patients, caregivers, and healthcare professionals.</div>
+    </div>
+
+    <div class="grid-2">
+      <div>
+        <div class="card-title">Diabetic Retinopathy</div>
+        <a class="resource-card" href="https://www.nei.nih.gov/learn-about-eye-health/eye-conditions-and-diseases/diabetic-retinopathy" target="_blank"><span class="resource-icon">🏛️</span><div><div class="resource-title">NIH National Eye Institute</div><div class="resource-sub">Complete DR guide — causes, diagnosis, treatment</div></div><span class="resource-arrow">→</span></a>
+        <a class="resource-card" href="https://www.aao.org/eye-health/diseases/what-is-diabetic-retinopathy" target="_blank"><span class="resource-icon">👁</span><div><div class="resource-title">American Academy of Ophthalmology</div><div class="resource-sub">Grading, stages & clinical management</div></div><span class="resource-arrow">→</span></a>
+        <a class="resource-card" href="https://www.diabetes.org/diabetes/eye-health" target="_blank"><span class="resource-icon">🩺</span><div><div class="resource-title">American Diabetes Association</div><div class="resource-sub">DR & diabetes eye complications overview</div></div><span class="resource-arrow">→</span></a>
+        <a class="resource-card" href="https://www.iapb.org/learn/vision-atlas/magnitude-and-projections/diabetic-retinopathy/" target="_blank"><span class="resource-icon">🌍</span><div><div class="resource-title">IAPB Vision Atlas</div><div class="resource-sub">Global DR statistics and projections</div></div><span class="resource-arrow">→</span></a>
+      </div>
+      <div>
+        <div class="card-title">General Eye Health</div>
+        <a class="resource-card" href="https://www.who.int/news-room/fact-sheets/detail/blindness-and-visual-impairment" target="_blank"><span class="resource-icon">🌐</span><div><div class="resource-title">WHO — Blindness & Visual Impairment</div><div class="resource-sub">Global burden of eye disease facts</div></div><span class="resource-arrow">→</span></a>
+        <a class="resource-card" href="https://www.aao.org/eye-health/tips-prevention" target="_blank"><span class="resource-icon">🛡️</span><div><div class="resource-title">AAO — Eye Health Tips & Prevention</div><div class="resource-sub">Evidence-based eye care guidance</div></div><span class="resource-arrow">→</span></a>
+        <a class="resource-card" href="https://glaucoma.org/glaucoma-information/" target="_blank"><span class="resource-icon">🔵</span><div><div class="resource-title">Glaucoma Research Foundation</div><div class="resource-sub">Glaucoma types, testing & treatment</div></div><span class="resource-arrow">→</span></a>
+        <a class="resource-card" href="https://www.macular.org/about-macular-degeneration" target="_blank"><span class="resource-icon">🔍</span><div><div class="resource-title">American Macular Degeneration Foundation</div><div class="resource-sub">AMD types, risk factors & living with AMD</div></div><span class="resource-arrow">→</span></a>
+      </div>
+    </div>
+
+    <div style="margin-top:28px">
+      <div class="card-title">Indian Eye Health Resources</div>
+      <div class="grid-2">
+        <a class="resource-card" href="https://www.lvpei.org" target="_blank"><span class="resource-icon">🇮🇳</span><div><div class="resource-title">L V Prasad Eye Institute</div><div class="resource-sub">India's leading eye care institution — patient education</div></div><span class="resource-arrow">→</span></a>
+        <a class="resource-card" href="https://www.aravind.org" target="_blank"><span class="resource-icon">🏥</span><div><div class="resource-title">Aravind Eye Care System</div><div class="resource-sub">World's largest eye care provider — free resources</div></div><span class="resource-arrow">→</span></a>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<footer>
+  DocSight &nbsp;<span>·</span>&nbsp; Eye Health Information Portal &nbsp;<span>·</span>&nbsp; For educational purposes only &nbsp;<span>·</span>&nbsp; Always consult a qualified ophthalmologist
+</footer>
+
+<script>
+const tabs = document.querySelectorAll('.tab-btn');
+const sections = document.querySelectorAll('.section');
+
+function switchTab(idx) {
+  tabs.forEach((t,i) => t.classList.toggle('active', i===idx));
+  sections.forEach((s,i) => {
+    s.classList.toggle('active', i===idx);
+  });
+  window.scrollTo({ top: document.querySelector('.tab-bar').offsetTop - 10, behavior: 'smooth' });
+}
+</script>
+</body>
+</html>
