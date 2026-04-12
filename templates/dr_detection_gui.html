@@ -183,8 +183,8 @@
 
   <div class="header-right">
     <!-- ✅ NEW BUTTON -->
-    <a href="eye_info.html"
-       style="padding:8px 16px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-weight:600;color:var(--ink-soft);text-decoration:none;">
+    <a href="/info"
+       style="padding:8px 16px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-weight:600;color:var(--ink-soft);text-decoration:none;transition:all 0.2s;">
        ℹ️ Eye Health Info
     </a>
 
@@ -196,7 +196,7 @@
 <div class="loading-overlay" id="loading">
   <div class="spinner"></div>
   <div class="loading-text">Analyzing fundus image…</div>
-  <div class="loading-sub">Running EfficientNet-B4 + Grad-CAM</div>
+  <div class="loading-sub">Running EfficientNet-B4 + Grad-CAM · First run may take up to 60 s</div>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -420,18 +420,42 @@ async function runAnalysis() {
   if (!uploadedFile) { showToast('Upload a fundus image first.'); return; }
 
   showLoading(true);
+
+  // Abort after 90 seconds — model inference can be slow on first run
+  const controller = new AbortController();
+  const timeoutId  = setTimeout(() => controller.abort('timeout'), 90000);
+
   try {
     const formData = new FormData();
     formData.append('image', uploadedFile);
 
-    const resp = await fetch('http://localhost:5000/predict', { method:'POST', body:formData });
-    if (!resp.ok) throw new Error('Server error');
-    const data = await resp.json();
+    const resp = await fetch('/predict', {
+      method: 'POST',
+      body:   formData,
+      signal: controller.signal
+    });
+    clearTimeout(timeoutId);
 
+    if (!resp.ok) {
+      let errMsg = 'Server error (' + resp.status + ')';
+      try { const e = await resp.json(); errMsg = e.error || errMsg; } catch(_) {}
+      throw new Error(errMsg);
+    }
+
+    const data = await resp.json();
+    if (data.success === false) throw new Error(data.error || 'Prediction failed.');
     showResult(data);
+
   } catch(err) {
-    showToast('⚠ Could not reach backend. Is app.py running?');
+    clearTimeout(timeoutId);
     console.error(err);
+    if (err.name === 'AbortError' || String(err).includes('timeout')) {
+      showToast('⏱ Request timed out — model may still be loading. Please try again in 30 s.');
+    } else if (err.message && err.message !== 'Failed to fetch') {
+      showToast('\u26a0 ' + err.message);
+    } else {
+      showToast('\u26a0 Network error — check your connection and try again.');
+    }
   } finally {
     showLoading(false);
   }

@@ -8,7 +8,7 @@ from huggingface_hub import hf_hub_download
 
 # ── Config ──
 IMG_SIZE    = 300
-DEVICE      = torch.device('cpu')  # Streamlit runs on CPU
+DEVICE      = torch.device('cpu')  # Runs on CPU
 HF_REPO     = 'Salonideshmukh/dr-detection-model'
 MODEL_FILE  = 'best_dr_model.pth'
 
@@ -43,13 +43,28 @@ class DRClassifier(nn.Module):
         return self.head(self.pool(feats))
 
 
-@torch.no_grad()
 def load_model():
     """Download model from HuggingFace and load weights."""
+    import os
+
+    # ── Step 1: Download weights FIRST (needs network access) ──
+    print("  Downloading model weights from HuggingFace...")
     model_path = hf_hub_download(repo_id=HF_REPO, filename=MODEL_FILE)
-    model      = DRClassifier(num_classes=2).to(DEVICE)
-    model.load_state_dict(torch.load(model_path, map_location=DEVICE))
+    print(f"  Weights downloaded to: {model_path}")
+
+    # ── Step 2: NOW block timm/torch from making any further outbound calls ──
+    # These are set AFTER download so they don't block hf_hub_download itself.
+    os.environ['TIMM_FUSED_ATTN'] = '0'
+    os.environ['HF_DATASETS_OFFLINE'] = '1'
+    os.environ['TRANSFORMERS_OFFLINE'] = '1'
+
+    # ── Step 3: Build model architecture and load weights — fully offline ──
+    print("  Building model architecture...")
+    model = DRClassifier(num_classes=2).to(DEVICE)
+    state_dict = torch.load(model_path, map_location=DEVICE)
+    model.load_state_dict(state_dict)
     model.eval()
+    print("  Model weights loaded successfully.")
     return model
 
 
@@ -74,10 +89,8 @@ def apply_clahe(img):
 
 def preprocess_image(img_array):
     """
-    Input  : numpy array in RGB (from Streamlit uploader)
+    Input  : numpy array in RGB (from PIL / Flask uploader)
     Output : preprocessed numpy array in RGB
-    This is the key fix — we convert RGB→BGR for OpenCV processing,
-    then convert back to RGB for display. Same result as training.
     """
     img = cv2.cvtColor(img_array, cv2.COLOR_RGB2BGR)  # RGB → BGR for OpenCV
     img = crop_black_borders(img)
@@ -100,10 +113,10 @@ def to_tensor(img_rgb):
 def predict(model, img_array, threshold=0.35):
     """
     Full inference pipeline.
-    img_array : numpy RGB array from Streamlit
-    Returns   : preprocessed image, grad-cam, prediction, probability
+    img_array : numpy RGB array from PIL/Flask
+    Returns   : preprocessed image, grad-cam heatmap, prediction label, probability
     """
-    # Preprocess
+    # ── Preprocess ──
     img_rgb    = preprocess_image(img_array)
     img_tensor = to_tensor(img_rgb)
 
